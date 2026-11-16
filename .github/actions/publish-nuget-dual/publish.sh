@@ -146,11 +146,12 @@ fi
 download_with_retry() {
   local url=$1
   local destination=$2
-  local attempt
-  for attempt in {1..18}; do
+  local retry
+  for retry in {1..18}; do
     if curl --fail --silent --show-error --location --output "$destination" "$url"; then
       return 0
     fi
+    echo "Read-back attempt $retry did not find the package yet; retrying."
     sleep 5
   done
   return 1
