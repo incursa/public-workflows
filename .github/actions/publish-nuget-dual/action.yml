@@ -1,0 +1,43 @@
+name: Publish NuGet packages to Incursa and NuGet.org
+description: Publish allowlisted package files to both public feeds with read-back verification.
+
+inputs:
+  packages-directory:
+    description: Directory containing the exact .nupkg files to publish.
+    required: false
+    default: nupkgs
+  expected-package-ids:
+    description: Newline- or comma-separated exact package IDs expected in the directory.
+    required: true
+  github-token:
+    description: GitHub token used to verify that the caller repository is public.
+    required: true
+  incursa-source:
+    description: Incursa public NuGet v3 service index.
+    required: false
+    default: https://artifacts.incursa.com/nuget/org_01KHAQFJHM9J6GDACHEPH1G164/public/v3/index.json
+  incursa-api-key:
+    description: Feed-scoped Incursa publication token.
+    required: true
+  nuget-source:
+    description: NuGet.org push endpoint.
+    required: false
+    default: https://api.nuget.org/v3/index.json
+  nuget-api-key:
+    description: NuGet.org publication key.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Publish and verify packages
+      shell: bash
+      env:
+        PACKAGES_DIRECTORY: ${{ inputs.packages-directory }}
+        EXPECTED_PACKAGE_IDS: ${{ inputs.expected-package-ids }}
+        GITHUB_TOKEN_INPUT: ${{ inputs.github-token }}
+        INCURSA_SOURCE: ${{ inputs.incursa-source }}
+        INCURSA_API_KEY: ${{ inputs.incursa-api-key }}
+        NUGET_SOURCE: ${{ inputs.nuget-source }}
+        NUGET_API_KEY: ${{ inputs.nuget-api-key }}
+      run: '"${{ github.action_path }}/publish.sh"'

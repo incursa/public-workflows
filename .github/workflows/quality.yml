@@ -1,0 +1,25 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Validate shell
+        run: |
+          bash -n .github/actions/publish-nuget-dual/publish.sh
+          shellcheck .github/actions/publish-nuget-dual/publish.sh
+
+      - name: Validate action metadata
+        run: ruby -e 'require "yaml"; YAML.load(File.read(".github/actions/publish-nuget-dual/action.yml")); puts "action.yml parsed"'
