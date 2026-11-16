@@ -17,8 +17,8 @@ The action:
   publication manifest;
 - publishes to the Incursa public feed first and verifies an anonymous
   byte-for-byte read-back;
-- publishes the same local files to NuGet.org and verifies all package entries
-  except NuGet.org's repository signature; and
+- submits all missing local files to NuGet.org before waiting for indexing, then
+  verifies every package entry except NuGet.org's repository signature; and
 - safely resumes a partial release only when the already-published content
   matches.
 

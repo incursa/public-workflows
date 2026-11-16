@@ -147,7 +147,7 @@ download_with_retry() {
   local url=$1
   local destination=$2
   local retry
-  for retry in {1..18}; do
+  for retry in {1..120}; do
     if curl --fail --silent --show-error --location --output "$destination" "$url"; then
       return 0
     fi
@@ -232,6 +232,7 @@ for package_id in "${expected_ids[@]}"; do
   fi
 done
 
+declare -A nuget_submitted=()
 for package_id in "${expected_ids[@]}"; do
   package_file=${package_ids[$package_id]}
   package_version=${package_versions[$package_id]}
@@ -239,6 +240,15 @@ for package_id in "${expected_ids[@]}"; do
     echo "NuGet.org already contains the verified package $package_id $package_version."
   else
     dotnet nuget push "$package_file" --api-key "$NUGET_API_KEY" --source "$NUGET_SOURCE" --skip-duplicate
+    nuget_submitted[$package_id]=1
+    echo "Submitted $package_id $package_version to NuGet.org for validation and indexing."
+  fi
+done
+
+for package_id in "${expected_ids[@]}"; do
+  if [[ -n "${nuget_submitted[$package_id]:-}" ]]; then
+    package_file=${package_ids[$package_id]}
+    package_version=${package_versions[$package_id]}
     verify_nuget_package "$package_file" "$package_id" "$package_version" published
     echo "Published and verified $package_id $package_version on NuGet.org."
   fi
